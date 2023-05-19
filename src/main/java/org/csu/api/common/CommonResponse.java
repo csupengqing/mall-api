@@ -1,49 +1,70 @@
 package org.csu.api.common;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 import lombok.Getter;
 
-import java.util.Objects;
-
 @Getter
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommonResponse <T> {
 
-    private Integer code;
-    private T data;
+    private int status;
     private String message;
+    private T data;
 
-    private CommonResponse(Integer code, String message) {
-        this.code = code;
+    private CommonResponse(int status) {
+        this.status = status;
+    }
+
+    private CommonResponse(int status, String message) {
+        this.status = status;
         this.message = message;
     }
 
-    private CommonResponse(Integer code, String message, T data) {
-        this.code = code;
+    private CommonResponse(int status, String message, T data) {
+        this.status = status;
         this.message = message;
+        this.data = data;
+    }
+
+    private CommonResponse(int status, T data) {
+        this.status = status;
         this.data = data;
     }
 
     @JsonIgnore
     public boolean isSuccess() {
-        return Objects.equals(this.code, ResponseStatus.SUCCESS.getCode());
+        return this.status == ResponseCode.SUCCESS.getCode();
     }
 
     public static <T> CommonResponse<T> createForSuccess() {
-        return new CommonResponse<>(ResponseStatus.SUCCESS.getCode(), "SUCCESS");
+        return new CommonResponse<T>(ResponseCode.SUCCESS.getCode());
+    }
+
+    public static <T> CommonResponse<T> createForSuccessMessage(String message) {
+        return new CommonResponse<>(ResponseCode.SUCCESS.getCode(), message);
     }
 
     public static <T> CommonResponse<T> createForSuccess(T data) {
-        return new CommonResponse<>(ResponseStatus.SUCCESS.getCode(), "SUCCESS", data);
+        return new CommonResponse<>(ResponseCode.SUCCESS.getCode(), data);
     }
 
-    public static <T> CommonResponse<T> createForErrorMessage(String message) {
-        return new CommonResponse<>(ResponseStatus.FAIL.getCode(), message);
+    public static <T> CommonResponse<T> createForSuccess(String message, T data) {
+        return new CommonResponse<T>(ResponseCode.SUCCESS.getCode(), message, data);
     }
 
-    public static <T> CommonResponse<T> createForArgumentErrorMessage(String message) {
-        return new CommonResponse<>(ResponseStatus.ARGUMENT_INVALID.getCode(), message);
+    public static <T> CommonResponse<T> createForError() {
+        return new CommonResponse<T>(ResponseCode.ERROR.getCode(), ResponseCode.ERROR.getDescription());
     }
+
+    public static <T> CommonResponse<T> createForError(String message) {
+        return new CommonResponse<T>(ResponseCode.ERROR.getCode(), message);
+    }
+
+    public static <T> CommonResponse<T> createForError(int code, String message) {
+        return new CommonResponse<T>(code, message);
+    }
+
+
 }
