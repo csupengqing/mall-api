@@ -5,14 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.benmanes.caffeine.cache.Cache;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.csu.api.common.CONSTANT;
 import org.csu.api.common.CommonResponse;
+import org.csu.api.common.ResponseCode;
 import org.csu.api.domain.User;
-import org.csu.api.dto.CheckUserFieldDTO;
-import org.csu.api.dto.LoginUserDTO;
-import org.csu.api.dto.RegisterUserDTO;
+import org.csu.api.dto.*;
 import org.csu.api.persistence.UserMapper;
 import org.csu.api.service.UserService;
 import org.csu.api.vo.UserVO;
@@ -190,5 +190,61 @@ public class UserServiceImpl implements UserService {
         } else {
             return CommonResponse.createForError("token错误，请重新获取token");
         }
+    }
+
+    @Override
+    public CommonResponse<String> resetPassword(String username, ResetPasswordDTO resetPasswordDTO) {
+        //用户名不存在
+        CommonResponse<Object> checkResult = this.checkField(CONSTANT.USER_FIELD.USERNAME, username);
+        if (checkResult.isSuccess()) {
+            return CommonResponse.createForError("重设密码失败");
+        }
+        //检验旧密码
+        QueryWrapper<User> queryWrapper =new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User user = userMapper.selectOne(queryWrapper);
+        if (user == null) {
+            return CommonResponse.createForError(ResponseCode.ERROR.getCode(), "重设密码失败");
+        }
+
+        if (bCryptPasswordEncoder.matches(resetPasswordDTO.getOldPassword(), user.getPassword())) {
+            //重置
+            String md5Password = bCryptPasswordEncoder.encode(resetPasswordDTO.getNewPassword());
+            User newUser = new User();
+            newUser.setUsername(username);
+            newUser.setPassword(md5Password);
+
+            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("username", username);
+            updateWrapper.set("password", newUser.getPassword());
+            int rows = userMapper.update(newUser, updateWrapper);
+            if (rows > 0) {
+                return CommonResponse.createForSuccessMessage("SUCCESS");
+            }
+            return CommonResponse.createForError("重设密码失败");
+        }
+        else return CommonResponse.createForError("重设密码失败");
+    }
+
+    @Override
+    public CommonResponse<String> updateUserInfo(String username, UpdateUserInfoDTO updateUserInfoDTO) {
+        String md5Password = bCryptPasswordEncoder.encode(updateUserInfoDTO.getPassword());
+        User user = new User();
+        BeanUtils.copyProperties(updateUserInfoDTO, user);
+        user.setPassword(md5Password);
+
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("username", username);
+        updateWrapper.set("username", user.getUsername())
+                .set("password", user.getPassword())
+                .set("email", user.getEmail())
+                .set("phone", user.getPhone())
+                .set("question", user.getQuestion())
+                .set("answer", user.getAnswer());
+        int rows = userMapper.update(user, updateWrapper);
+        if (rows > 0) {
+            return CommonResponse.createForSuccessMessage("SUCCESS");
+        }
+        return CommonResponse.createForError("修改个人信息失败");
     }
 }

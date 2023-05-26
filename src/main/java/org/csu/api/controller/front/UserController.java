@@ -3,19 +3,14 @@ package org.csu.api.controller.front;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.csu.api.common.CONSTANT;
 import org.csu.api.common.CommonResponse;
-import org.csu.api.domain.User;
+import org.csu.api.common.ResponseCode;
 import org.csu.api.dto.*;
 import org.csu.api.service.UserService;
 import org.csu.api.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,11 +19,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    //DTO:客户端提交数据时数据的封装对象，以及各个层之间传递数据
-    //VO：View Object，服务端向客户端返回数据时的封装对象
-    //VO：Value Object，业务逻辑层和DAO层交换的封装对象
-    //BO：业务对象，领域对象DO
 
     @PostMapping("login")
     public CommonResponse<UserVO> login(@Valid @RequestBody LoginUserDTO loginUserDTO,
@@ -53,6 +43,15 @@ public class UserController {
         return userService.register(registerUserDTO);
     }
 
+    @PostMapping("get_user_detail")
+    public CommonResponse<UserVO> getUserDetail(HttpSession session){
+        UserVO userVO=(UserVO)session.getAttribute(CONSTANT.LOGIN_USER);
+        if(userVO == null){
+            return CommonResponse.createForError(ResponseCode.ERROR.getCode(),"用户未登录");
+        }
+        else return CommonResponse.createForSuccess(userVO);
+    }
+
     @GetMapping("get_forget_question")
     public CommonResponse<String> getForgetQuestion(
             @RequestParam @NotBlank(message = "用户名不能为空") String username) {
@@ -72,9 +71,42 @@ public class UserController {
         return userService.resetForgetPassword(
                 resetUserDTO.getUsername(), resetUserDTO.getNewPassword(), resetUserDTO.getForgetToken());
     }
+    @PostMapping("/reset_password")
+    public CommonResponse<String> reset_password(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO,
+                                                 HttpSession session){
+        UserVO userVO = (UserVO) session.getAttribute(CONSTANT.LOGIN_USER);
+        if(userVO == null){
+            return CommonResponse.createForError("重设密码失败");
+        }
+        else return userService.resetPassword(userVO.getUsername(),resetPasswordDTO);
+    }
+
+    @PostMapping("/update_user_info")
+    public CommonResponse<String> update_user_info(@Valid @RequestBody UpdateUserInfoDTO updateUserInfoDTO,
+                                                   HttpSession session){
+        UserVO userVO = (UserVO) session.getAttribute(CONSTANT.LOGIN_USER);
+        if(userVO == null){
+            return CommonResponse.createForError("修改个人信息失败");
+        }
+        else{
+            CommonResponse<String> result = userService.updateUserInfo(userVO.getUsername(), updateUserInfoDTO);
+            if(result.isSuccess()){
+                //成功则更新session
+                LoginUserDTO loginUserDTO = new LoginUserDTO();
+                loginUserDTO.setUsername(updateUserInfoDTO.getUsername());
+                loginUserDTO.setPassword(updateUserInfoDTO.getPassword());
+                CommonResponse<UserVO> result2 = userService.login(loginUserDTO);
+                if (result2.isSuccess()) {
+                    session.setAttribute(CONSTANT.LOGIN_USER, result2.getData());
+                }
+                return CommonResponse.createForSuccessMessage("SUCCESS");
+            }
+            else return CommonResponse.createForError("修改个人信息失败");
+        }
+    }
 
     @PostMapping("logout")
-    public CommonResponse<Object> logout(HttpSession session) {
+    public CommonResponse<String> logout(HttpSession session) {
         session.removeAttribute(CONSTANT.LOGIN_USER);
         return CommonResponse.createForSuccess("退出登录成功");
     }

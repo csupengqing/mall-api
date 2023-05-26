@@ -2,9 +2,7 @@ package org.csu.api.service;
 
 import org.csu.api.common.CommonResponse;
 import org.csu.api.domain.User;
-import org.csu.api.dto.CheckUserFieldDTO;
-import org.csu.api.dto.LoginUserDTO;
-import org.csu.api.dto.RegisterUserDTO;
+import org.csu.api.dto.*;
 import org.csu.api.vo.UserVO;
 
 public interface UserService {
@@ -27,4 +25,10 @@ public interface UserService {
 
     //根据token重置用户密码
     CommonResponse<String> resetForgetPassword(String username, String newPassword, String forgetToken);
+
+    //登录状态重置密码
+    CommonResponse<String> resetPassword(String username, ResetPasswordDTO resetPasswordDTO);
+
+    //登录状态修改用户信息
+    CommonResponse<String> updateUserInfo(String username, UpdateUserInfoDTO updateUserInfoDTO);
 }
