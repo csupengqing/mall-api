@@ -15,6 +15,7 @@ import org.csu.api.domain.User;
 import org.csu.api.dto.*;
 import org.csu.api.persistence.UserMapper;
 import org.csu.api.service.UserService;
+import org.csu.api.util.ListBeanUtils;
 import org.csu.api.vo.UserVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service("userService")
@@ -193,48 +196,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CommonResponse<String> resetPassword(String username, ResetPasswordDTO resetPasswordDTO) {
-        //用户名不存在
-        CommonResponse<Object> checkResult = this.checkField(CONSTANT.USER_FIELD.USERNAME, username);
-        if (checkResult.isSuccess()) {
-            return CommonResponse.createForError("重设密码失败");
-        }
+    public CommonResponse<String> resetPassword(Integer id, ResetPasswordDTO resetPasswordDTO) {
         //检验旧密码
         QueryWrapper<User> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("username", username);
+        queryWrapper.eq("id", id);
         User user = userMapper.selectOne(queryWrapper);
         if (user == null) {
             return CommonResponse.createForError(ResponseCode.ERROR.getCode(), "重设密码失败");
         }
-
         if (bCryptPasswordEncoder.matches(resetPasswordDTO.getOldPassword(), user.getPassword())) {
             //重置
             String md5Password = bCryptPasswordEncoder.encode(resetPasswordDTO.getNewPassword());
             User newUser = new User();
-            newUser.setUsername(username);
-            newUser.setPassword(md5Password);
-
             UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("username", username);
-            updateWrapper.set("password", newUser.getPassword());
+            updateWrapper.eq("id", id);
+            updateWrapper.set("password", md5Password);
             int rows = userMapper.update(newUser, updateWrapper);
             if (rows > 0) {
                 return CommonResponse.createForSuccessMessage("SUCCESS");
             }
-            return CommonResponse.createForError("重设密码失败");
         }
-        else return CommonResponse.createForError("重设密码失败");
+        return CommonResponse.createForError("重设密码失败");
     }
 
     @Override
-    public CommonResponse<String> updateUserInfo(String username, UpdateUserInfoDTO updateUserInfoDTO) {
+    public CommonResponse<String> updateUserInfo(Integer id, UpdateUserInfoDTO updateUserInfoDTO) {
         String md5Password = bCryptPasswordEncoder.encode(updateUserInfoDTO.getPassword());
         User user = new User();
         BeanUtils.copyProperties(updateUserInfoDTO, user);
         user.setPassword(md5Password);
 
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("username", username);
+        updateWrapper.eq("id", id);
         updateWrapper.set("username", user.getUsername())
                 .set("password", user.getPassword())
                 .set("email", user.getEmail())
@@ -243,8 +236,37 @@ public class UserServiceImpl implements UserService {
                 .set("answer", user.getAnswer());
         int rows = userMapper.update(user, updateWrapper);
         if (rows > 0) {
-            return CommonResponse.createForSuccessMessage("SUCCESS");
+            return CommonResponse.createForSuccess("SUCCESS");
         }
         return CommonResponse.createForError("修改个人信息失败");
+    }
+
+    @Override
+    public CommonResponse<String> deleteUser(Integer id) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",id).eq("role",CONSTANT.ROLE.CUSTOMER);
+        if(userMapper.selectOne(queryWrapper) == null)
+            return CommonResponse.createForError("该用户不存在或为管理员，删除用户失败");
+        int result = userMapper.deleteById(id);
+        if(result > 0)
+            return CommonResponse.createForSuccessMessage("删除用户成功");
+        return CommonResponse.createForError("删除用户失败");
+    }
+
+    @Override
+    public CommonResponse<List<User>> listUser() {
+        QueryWrapper<User> queryWrapper =new QueryWrapper<>();
+        queryWrapper.eq("role",CONSTANT.ROLE.CUSTOMER);
+        List<User> userList = userMapper.selectList(queryWrapper);
+        return CommonResponse.createForSuccess("SUCCESS",userList);
+    }
+
+    @Override
+    public CommonResponse<User> getUserInfo(Integer id) {
+        User user = userMapper.selectById(id);
+        if(user == null)
+            return CommonResponse.createForError(ResponseCode.ARGUMENT_ILLEGAL.getCode(), ResponseCode.ARGUMENT_ILLEGAL.getDescription());
+        else
+            return CommonResponse.createForSuccess("SUCCESS",user);
     }
 }

@@ -5,6 +5,8 @@ import org.csu.api.domain.User;
 import org.csu.api.dto.*;
 import org.csu.api.vo.UserVO;
 
+import java.util.List;
+
 public interface UserService {
 
     //用户登录
@@ -27,8 +29,17 @@ public interface UserService {
     CommonResponse<String> resetForgetPassword(String username, String newPassword, String forgetToken);
 
     //登录状态重置密码
-    CommonResponse<String> resetPassword(String username, ResetPasswordDTO resetPasswordDTO);
+    CommonResponse<String> resetPassword(Integer id, ResetPasswordDTO resetPasswordDTO);
 
     //登录状态修改用户信息
-    CommonResponse<String> updateUserInfo(String username, UpdateUserInfoDTO updateUserInfoDTO);
+    CommonResponse<String> updateUserInfo(Integer id, UpdateUserInfoDTO updateUserInfoDTO);
+
+    //删除用户————管理员权限
+    CommonResponse<String> deleteUser(Integer id);
+
+    //查看所有用户信息————管理员权限
+    CommonResponse<List<User>> listUser();
+
+    //查看用户信息————管理员权限
+    CommonResponse<User> getUserInfo(Integer id);
 }

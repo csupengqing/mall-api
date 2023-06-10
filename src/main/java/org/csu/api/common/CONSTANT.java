@@ -5,6 +5,7 @@ import lombok.Getter;
 public class CONSTANT {
 
     public static final String LOGIN_USER = "loginUser";
+    public static final String LOGIN_ADMIN = "loginAdmin";
     public static final int CATEGORY_ROOT = 0;
 
     public interface ROLE{
@@ -36,5 +37,10 @@ public class CONSTANT {
 
     public static final String PRODUCT_ORDER_BY_PRICE_ASC = "price_asc";
     public static final String PRODUCT_ORDER_BY_PRICE_DESC = "price_desc";
+
+    public interface CART_ITEM_STATUS{
+        int CHECKED = 1;
+        int UNCHECKED = 0;
+    }
 
 }

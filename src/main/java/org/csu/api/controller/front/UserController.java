@@ -78,19 +78,16 @@ public class UserController {
         if(userVO == null){
             return CommonResponse.createForError("重设密码失败");
         }
-        else return userService.resetPassword(userVO.getUsername(),resetPasswordDTO);
+        else return userService.resetPassword(userVO.getId(),resetPasswordDTO);
     }
 
     @PostMapping("/update_user_info")
     public CommonResponse<String> update_user_info(@Valid @RequestBody UpdateUserInfoDTO updateUserInfoDTO,
                                                    HttpSession session){
         UserVO userVO = (UserVO) session.getAttribute(CONSTANT.LOGIN_USER);
-        if(userVO == null){
-            return CommonResponse.createForError("修改个人信息失败");
-        }
-        else{
-            CommonResponse<String> result = userService.updateUserInfo(userVO.getUsername(), updateUserInfoDTO);
-            if(result.isSuccess()){
+        if (userVO != null) {
+            CommonResponse<String> result = userService.updateUserInfo(userVO.getId(), updateUserInfoDTO);
+            if (result.isSuccess()) {
                 //成功则更新session
                 LoginUserDTO loginUserDTO = new LoginUserDTO();
                 loginUserDTO.setUsername(updateUserInfoDTO.getUsername());
@@ -98,11 +95,11 @@ public class UserController {
                 CommonResponse<UserVO> result2 = userService.login(loginUserDTO);
                 if (result2.isSuccess()) {
                     session.setAttribute(CONSTANT.LOGIN_USER, result2.getData());
+                    return CommonResponse.createForSuccessMessage("SUCCESS");
                 }
-                return CommonResponse.createForSuccessMessage("SUCCESS");
             }
-            else return CommonResponse.createForError("修改个人信息失败");
         }
+        return CommonResponse.createForError("修改个人信息失败");
     }
 
     @PostMapping("logout")

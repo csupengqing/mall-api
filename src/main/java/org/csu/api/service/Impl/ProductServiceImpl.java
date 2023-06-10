@@ -1,6 +1,7 @@
 package org.csu.api.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -10,12 +11,12 @@ import org.csu.api.common.CommonResponse;
 import org.csu.api.common.ResponseCode;
 import org.csu.api.domain.Category;
 import org.csu.api.domain.Product;
+import org.csu.api.dto.ProductInfoDTO;
 import org.csu.api.persistence.CategoryMapper;
 import org.csu.api.persistence.ProductMapper;
 import org.csu.api.service.CategoryService;
 import org.csu.api.service.ProductService;
 import org.csu.api.util.ImageServerConfig;
-import org.csu.api.util.ListBeanUtils;
 import org.csu.api.util.ListBeanUtilsForPage;
 import org.csu.api.vo.ProductDetailVO;
 import org.csu.api.vo.ProductListVO;
@@ -23,6 +24,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service("productService")
@@ -126,5 +128,75 @@ public class ProductServiceImpl implements ProductService {
 
         productDetailVO.setImageServer(imageServerConfig.getUrl());
         return productDetailVO;
+    }
+
+    @Override
+    public CommonResponse<String> addProduct(ProductInfoDTO productInfoDTO) {
+        Category category = categoryMapper.selectById(productInfoDTO.getCategoryId());
+        if(category == null){
+            return CommonResponse.createForError("没有要添加至的商品类别");
+        }
+        else{
+            Product product = new Product();
+            BeanUtils.copyProperties(productInfoDTO,product);
+            product.setCreateTime(LocalDateTime.now());
+            product.setUpdateTime(LocalDateTime.now());
+
+            int rows = productMapper.insert(product);
+            if(rows == 0){
+                return CommonResponse.createForError("添加商品失败");
+            }
+            return CommonResponse.createForSuccessMessage("添加商品成功");
+        }
+    }
+
+    @Override
+    public CommonResponse<String> deleteProduct(Integer productId) {
+        Product product = productMapper.selectById(productId);
+        if(product == null){
+            return CommonResponse.createForError("商品ID不存在");
+        }
+        else{
+            int result = productMapper.deleteById(productId);
+            if(result == 0){
+                return CommonResponse.createForError("删除商品失败");
+            }
+            else{
+                return CommonResponse.createForSuccessMessage("删除商品成功");
+            }
+        }
+    }
+
+    @Override
+    public CommonResponse<String> updateProductInfo(Integer productId, ProductInfoDTO productInfoDTO) {
+        Product product = productMapper.selectById(productId);
+        if(product == null){
+            return CommonResponse.createForError("该商品不存在");
+        }
+        else{
+            if(categoryMapper.selectById(productInfoDTO.getCategoryId()) == null){
+                return CommonResponse.createForError("修改至的类别不存在");
+            }
+            else{
+                Product product1 = new Product();
+                UpdateWrapper<Product> updateWrapper =new UpdateWrapper<>();
+                updateWrapper.eq("id",productId);
+                updateWrapper.set("category_id",productInfoDTO.getCategoryId())
+                        .set("name",productInfoDTO.getName())
+                        .set("subtitle",productInfoDTO.getSubtitle())
+                        .set("main_image",productInfoDTO.getMainImage())
+                        .set("sub_images",productInfoDTO.getSubImages())
+                        .set("detail",productInfoDTO.getDetail())
+                        .set("price",productInfoDTO.getPrice())
+                        .set("stock",productInfoDTO.getStock())
+                        .set("status",productInfoDTO.getStatus())
+                        .set("update_time",LocalDateTime.now());
+                int rows = productMapper.update(product1, updateWrapper);
+                if (rows > 0) {
+                    return CommonResponse.createForSuccess("SUCCESS");
+                }
+                return CommonResponse.createForError("修改商品信息失败");
+            }
+        }
     }
 }
