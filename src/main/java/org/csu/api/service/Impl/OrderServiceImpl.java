@@ -1,6 +1,7 @@
 package org.csu.api.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.csu.api.common.CommonResponse;
 import org.csu.api.domain.Adress;
 import org.csu.api.domain.Order;
 import org.csu.api.domain.OrderItem;
+import org.csu.api.domain.Product;
 import org.csu.api.persistence.*;
 import org.csu.api.service.CartService;
 import org.csu.api.service.OrderService;
@@ -79,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
         int checked = 0;
         for(CartItemVO cartItemVO : cartItemVOList) {
             if(cartItemVO.getChecked() == 1){
-                // 生成订单同时删除购物车相应项
+                // 生成订单同时删除购物车相应项、修改库存
                 OrderItem orderItem = new OrderItem();
                 orderItem.setUserId(userId);
                 orderItem.setProductId(cartItemVO.getProductId());
@@ -93,6 +95,11 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setUpdateTime(LocalDateTime.now());
                 orderItemMapper.insert(orderItem);
                 cartService.deleteCart(userId, String.valueOf(cartItemVO.getProductId()));
+                Product product = productMapper.selectById(cartItemVO.getProductId());
+                UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("id", cartItemVO.getProductId());
+                updateWrapper.set("stock", Math.max(product.getStock() - cartItemVO.getQuantity(), 0));
+                productMapper.update(product, updateWrapper);
 
                 OrderItemVO orderItemVO = new OrderItemVO();
                 BeanUtils.copyProperties(orderItem, orderItemVO);
