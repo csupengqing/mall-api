@@ -7,7 +7,7 @@ import org.hibernate.validator.constraints.Range;
 @Data
 public class PostCartDTO {
     @NotNull(message = "商品ID不能为空")
-    private Integer ProductId;
+    private Integer productId;
     @Range(min = 1,message = "商品数量不能小于1")
     private Integer quantity;
 }

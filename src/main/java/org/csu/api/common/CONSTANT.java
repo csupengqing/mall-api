@@ -43,4 +43,19 @@ public class CONSTANT {
         int UNCHECKED = 0;
     }
 
+    public interface PAYMENT_TYPE {
+        int ZHI_FU_BAO = 1;
+        int WEI_XIN_ZHI_FU = 2;
+        int OTHERS = 3;
+    }
+
+    public interface ORDER_STATUS {
+        int CANCLED = 1;
+        int UN_PAID = 2;
+        int PAID = 3;
+        int DELIVERED = 4;
+        int TRADE_SECCUSSFUL = 5;
+        int CLOSED = 6;
+    }
+
 }
