@@ -38,7 +38,7 @@ public class AlipayController {
 
     @RequestMapping(value = "/pay")
     public String pay(HttpSession session, HttpServletRequest request, BigInteger orderNo) throws AlipayApiException {
-        needLogin(session);
+        this.needLogin(session);
         return alipayService.pay(orderNo);
     }
 
@@ -56,6 +56,8 @@ public class AlipayController {
 
     private CommonResponse<Object> needLogin(HttpSession session) {
         UserVO loginUser = (UserVO) session.getAttribute(CONSTANT.LOGIN_USER);
+        System.out.println("********************");
+        System.out.println(loginUser);
         if (loginUser == null) {
             return CommonResponse.createForError(ResponseCode.NEED_LOGIN.getCode(),
                     ResponseCode.NEED_LOGIN.getDescription());

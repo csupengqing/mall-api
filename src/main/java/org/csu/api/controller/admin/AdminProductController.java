@@ -7,6 +7,7 @@ import org.csu.api.common.CONSTANT;
 import org.csu.api.common.CommonResponse;
 import org.csu.api.common.ResponseCode;
 import org.csu.api.dto.ProductInfoDTO;
+import org.csu.api.dto.UpdateProductDTO;
 import org.csu.api.service.ProductService;
 import org.csu.api.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +47,13 @@ public class AdminProductController {
 
     //修改商品信息
     @PostMapping("/update_product_info")
-    public CommonResponse<String> updateProductInfo(@NotNull(message = "商品ID不能为空") Integer productId,
-                                                    @Valid @RequestBody ProductInfoDTO productInfoDTO,
+    public CommonResponse<String> updateProductInfo(@Valid @RequestBody UpdateProductDTO updateProductDTO,
                                                 HttpSession session){
         UserVO userVO=(UserVO)session.getAttribute(CONSTANT.LOGIN_ADMIN);
         if(userVO == null){
             return CommonResponse.createForError(ResponseCode.ERROR.getCode(),"管理员未登录");
         }
         else
-            return productService.updateProductInfo(productId,productInfoDTO);
+            return productService.updateProductInfo(updateProductDTO);
     }
 }

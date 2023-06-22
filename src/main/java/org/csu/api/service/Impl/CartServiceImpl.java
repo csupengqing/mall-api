@@ -26,8 +26,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service("cartService")
 @Slf4j
@@ -297,8 +295,24 @@ public class CartServiceImpl implements CartService {
                         cartItemMapper.update(updateStockCart,updateWrapper);
                         cartItemVO.setCheckStock(false);
                     }
+                    //商品不在售
+                    QueryWrapper<Product> queryWrapper2 = new QueryWrapper<>();
+                    queryWrapper2.eq("id",product.getId()).eq("status",CONSTANT.ProductStatus.ON_SALE.getCode());
+                    Product product2 = productMapper.selectOne(queryWrapper2);
+                    if(product2 == null){
+                        cartItemVO.setChecked(CONSTANT.CART_ITEM_STATUS.UNCHECKED);
+                        cartItemVO.setStatus(CONSTANT.ProductStatus.TAKE_DOWN.getCode());
+                        CartItem cartItem2 = new CartItem();
+                        UpdateWrapper<CartItem> cartItemUpdateWrapper = new UpdateWrapper<>();
+                        cartItemUpdateWrapper.eq("id",cartItem.getId())
+                                .eq("user_id",userId)
+                                .eq("product_id",product.getId())
+                                .set("checked",CONSTANT.CART_ITEM_STATUS.UNCHECKED);
+                        cartItemMapper.update(cartItem2,cartItemUpdateWrapper);
+                    }
                     cartItemVO.setProductTotalPrice(BigDecimalUtil.multiply(cartItemVO.getProductPrice().doubleValue(),cartItemVO.getQuantity().doubleValue()));
                 }
+
                 cartItemVOList.add(cartItemVO);
                 if(cartItem.getChecked() == CONSTANT.CART_ITEM_STATUS.CHECKED){
                     cartTotalPrice = BigDecimalUtil.add(cartTotalPrice.doubleValue(),cartItemVO.getProductTotalPrice().doubleValue());

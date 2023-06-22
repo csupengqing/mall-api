@@ -9,7 +9,7 @@ import org.csu.api.common.ResponseCode;
 import org.csu.api.dto.LoginUserDTO;
 import org.csu.api.dto.RegisterUserDTO;
 import org.csu.api.dto.ResetPasswordDTO;
-import org.csu.api.dto.UpdateUserInfoDTO;
+import org.csu.api.dto.UpdateUserDTO;
 import org.csu.api.service.AdminService;
 import org.csu.api.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,16 +65,16 @@ public class AdminController {
     }
 
     @PostMapping("/update_admin_info")
-    public CommonResponse<String> update_user_info(@Valid @RequestBody UpdateUserInfoDTO updateUserInfoDTO,
+    public CommonResponse<String> update_admin_info(@Valid @RequestBody UpdateUserDTO updateUserDTO,
                                                    HttpSession session){
         UserVO userVO = (UserVO) session.getAttribute(CONSTANT.LOGIN_ADMIN);
-        if (userVO != null) {
-            CommonResponse<String> result = adminService.updateAdminInfo(userVO.getId(), updateUserInfoDTO);
+        if (userVO != null && userVO.getId() == updateUserDTO.getId()) {
+            CommonResponse<String> result = adminService.updateAdminInfo(updateUserDTO);
             if (result.isSuccess()) {
                 //成功则更新session
                 LoginUserDTO loginUserDTO = new LoginUserDTO();
-                loginUserDTO.setUsername(updateUserInfoDTO.getUsername());
-                loginUserDTO.setPassword(updateUserInfoDTO.getPassword());
+                loginUserDTO.setUsername(updateUserDTO.getUsername());
+                loginUserDTO.setPassword(updateUserDTO.getPassword());
                 CommonResponse<UserVO> result2 = adminService.login(loginUserDTO);
                 if (result2.isSuccess()) {
                     session.setAttribute(CONSTANT.LOGIN_ADMIN, result2.getData());

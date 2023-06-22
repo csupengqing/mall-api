@@ -2,6 +2,7 @@ package org.csu.api.controller.front;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.csu.api.common.CONSTANT;
 import org.csu.api.common.CommonResponse;
@@ -67,12 +68,23 @@ public class OrderController {
     }
 
     @PostMapping("/order/cancel")
-    public CommonResponse<String> cancel(HttpSession session, BigInteger orderNo) {
+    public CommonResponse<String> cancel(HttpSession session, @RequestParam @NotNull(message = "订单ID不能为空")Integer orderId) {
         UserVO loginUser = (UserVO) session.getAttribute(CONSTANT.LOGIN_USER);
         if (loginUser == null) {
             return CommonResponse.createForError(ResponseCode.NEED_LOGIN.getCode(),
                     ResponseCode.NEED_LOGIN.getDescription());
         }
-        return orderService.cancel(loginUser.getId(), orderNo);
+        return orderService.cancel(orderId);
+    }
+
+    @PostMapping("/order/success")
+    public CommonResponse<String> success(@RequestParam @NotNull(message = "订单ID不能为空") Integer orderId,
+                                          HttpSession session){
+        UserVO loginUser = (UserVO) session.getAttribute(CONSTANT.LOGIN_USER);
+        if (loginUser == null) {
+            return CommonResponse.createForError(ResponseCode.NEED_LOGIN.getCode(),
+                    ResponseCode.NEED_LOGIN.getDescription());
+        }
+        return orderService.success(orderId);
     }
 }

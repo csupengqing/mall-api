@@ -3,7 +3,7 @@ package org.csu.api.vo;
 import lombok.Data;
 
 @Data
-public class AdressVO {
+public class AddressVO {
     private Integer id;
     private Integer userId;
     private String addressName;

@@ -15,6 +15,7 @@ public class CartItemVO {
     private Integer productId;
     private Integer quantity;
     private Integer checked;
+    private Integer status;
 
     private String productName;
     private String productSubtitle;

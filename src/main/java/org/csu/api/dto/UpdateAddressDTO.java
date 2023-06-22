@@ -1,10 +1,15 @@
 package org.csu.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class AddAdressDTO {
+public class UpdateAddressDTO {
+    @NotNull(message = "地址ID不能为空")
+    private Integer id;
+    @NotNull(message = "用户ID不能为空")
+    private Integer userId;
     @NotBlank(message = "地址名称不能为空")
     private String addressName;
     @NotBlank(message = "地址电话不能为空")

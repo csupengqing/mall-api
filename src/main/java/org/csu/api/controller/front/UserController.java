@@ -82,16 +82,16 @@ public class UserController {
     }
 
     @PostMapping("/update_user_info")
-    public CommonResponse<String> update_user_info(@Valid @RequestBody UpdateUserInfoDTO updateUserInfoDTO,
+    public CommonResponse<Object> update_user_info(@Valid @RequestBody UpdateUserDTO updateUserDTO,
                                                    HttpSession session){
         UserVO userVO = (UserVO) session.getAttribute(CONSTANT.LOGIN_USER);
         if (userVO != null) {
-            CommonResponse<String> result = userService.updateUserInfo(userVO.getId(), updateUserInfoDTO);
+            CommonResponse<Object> result = userService.updateUserInfo(updateUserDTO);
             if (result.isSuccess()) {
                 //成功则更新session
                 LoginUserDTO loginUserDTO = new LoginUserDTO();
-                loginUserDTO.setUsername(updateUserInfoDTO.getUsername());
-                loginUserDTO.setPassword(updateUserInfoDTO.getPassword());
+                loginUserDTO.setUsername(updateUserDTO.getUsername());
+                loginUserDTO.setPassword(updateUserDTO.getPassword());
                 CommonResponse<UserVO> result2 = userService.login(loginUserDTO);
                 if (result2.isSuccess()) {
                     session.setAttribute(CONSTANT.LOGIN_USER, result2.getData());

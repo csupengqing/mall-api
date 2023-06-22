@@ -2,10 +2,13 @@ package org.csu.api.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class UpdateUserInfoDTO {
+public class UpdateUserDTO {
+    @NotNull(message = "用户ID不能为空")
+    private Integer id;
     @NotBlank(message = "用户名不能为空")
     private String username;
     @NotBlank(message = "密码不能为空")

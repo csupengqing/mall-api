@@ -1,5 +1,6 @@
 package org.csu.api.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -22,6 +23,8 @@ public class User {
     private String question;
     private String answer;
     private Integer role;
+    @TableField(value = "create_time")
     private LocalDateTime createTime;
+    @TableField(value = "update_time")
     private LocalDateTime updateTime;
 }

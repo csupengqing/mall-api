@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 public class OrderVO {
-    private Integer ID;
+    private Integer id;
     private BigInteger orderNo;
     private Integer userId;
     private BigDecimal paymentPrice;
@@ -22,6 +22,6 @@ public class OrderVO {
     private LocalDateTime closeTime;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-    private AdressVO adressVO;
+    private AddressVO addressVO;
     private List<OrderItemVO> orderItemVOList;
 }

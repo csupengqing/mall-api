@@ -7,7 +7,7 @@ import org.csu.api.common.CONSTANT;
 import org.csu.api.common.CommonResponse;
 import org.csu.api.common.ResponseCode;
 import org.csu.api.domain.User;
-import org.csu.api.dto.UpdateUserInfoDTO;
+import org.csu.api.dto.UpdateUserDTO;
 import org.csu.api.service.UserService;
 import org.csu.api.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,15 +56,13 @@ public class AdminUserController {
     }
     //修改用户信息
     @PostMapping("/update_user_info")
-    public CommonResponse<String> updateUserInfo(@RequestParam @NotNull(message = "用户ID不能为空") Integer id,
-                                                 @Valid @RequestBody UpdateUserInfoDTO updateUserInfoDTO,
+    public CommonResponse<Object> updateUserInfo(@Valid @RequestBody UpdateUserDTO updateUserDTO,
                                             HttpSession session){
         UserVO userVO=(UserVO)session.getAttribute(CONSTANT.LOGIN_ADMIN);
         if(userVO == null){
             return CommonResponse.createForError(ResponseCode.ERROR.getCode(),"管理员未登录");
         }
         else
-            return userService.updateUserInfo(id,updateUserInfoDTO);
-
+            return userService.updateUserInfo(updateUserDTO);
     }
 }

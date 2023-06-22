@@ -4,30 +4,23 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("mystore_order_item")
-public class OrderItem {
+@TableName("mystore_pay_info")
+public class PayInfo {
     private Integer id;
     @TableField(value = "user_id")
     private Integer userId;
-    @TableField(value = "product_id")
-    private Integer productId;
     @TableField(value = "order_no")
     private BigInteger orderNo;
-    @TableField(value = "product_name")
-    private String productName;
-    @TableField(value = "product_image")
-    private String productImage;
-    @TableField(value = "current_price")
-    private BigDecimal currentPrice;
-
-    private Integer quantity;
-    @TableField(value = "total_price")
-    private BigDecimal totalPrice;
+    @TableField(value = "payment_type")
+    private Integer paymentType;
+    @TableField(value = "trade_no")
+    private String tradeNo;
+    @TableField(value = "trade_status")
+    private String tradeStatus;
     @TableField(value = "create_time")
     private LocalDateTime createTime;
     @TableField(value = "update_time")

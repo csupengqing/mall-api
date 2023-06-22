@@ -4,7 +4,7 @@ import org.csu.api.common.CommonResponse;
 import org.csu.api.dto.LoginUserDTO;
 import org.csu.api.dto.RegisterUserDTO;
 import org.csu.api.dto.ResetPasswordDTO;
-import org.csu.api.dto.UpdateUserInfoDTO;
+import org.csu.api.dto.UpdateUserDTO;
 import org.csu.api.vo.UserVO;
 
 public interface AdminService {
@@ -17,5 +17,5 @@ public interface AdminService {
 
     CommonResponse<String> resetPassword(Integer id, ResetPasswordDTO resetPasswordDTO);
 
-    CommonResponse<String> updateAdminInfo(Integer id, UpdateUserInfoDTO updateUserInfoDTO);
+    CommonResponse<String> updateAdminInfo(UpdateUserDTO updateUserDTO);
 }

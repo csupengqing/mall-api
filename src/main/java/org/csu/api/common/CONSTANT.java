@@ -38,6 +38,9 @@ public class CONSTANT {
     public static final String PRODUCT_ORDER_BY_PRICE_ASC = "price_asc";
     public static final String PRODUCT_ORDER_BY_PRICE_DESC = "price_desc";
 
+    public static final String Order_ORDER_BY_TIME_ASC = "asc";
+    public static final String Order_ORDER_BY_TIME_DESC = "desc";
+
     public interface CART_ITEM_STATUS{
         int CHECKED = 1;
         int UNCHECKED = 0;
@@ -54,7 +57,7 @@ public class CONSTANT {
         int UN_PAID = 2;
         int PAID = 3;
         int DELIVERED = 4;
-        int TRADE_SECCUSSFUL = 5;
+        int TRADE_SUCCESS = 5;
         int CLOSED = 6;
     }
 

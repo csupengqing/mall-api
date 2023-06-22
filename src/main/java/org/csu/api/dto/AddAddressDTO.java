@@ -1,17 +1,10 @@
-package org.csu.api.domain;
+package org.csu.api.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-@TableName("mystore_address")
-public class Adress {
-    private Integer id;
-//    @TableField("user_id")
-    private Integer userId;
+public class AddAddressDTO {
     @NotBlank(message = "地址名称不能为空")
     private String addressName;
     @NotBlank(message = "地址电话不能为空")
@@ -28,7 +21,4 @@ public class Adress {
     private String addressDetail;
     @NotBlank(message = "地址邮编不能为空")
     private String addressZip;
-
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
 }

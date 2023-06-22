@@ -11,22 +11,29 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mystore_order")
 public class Order {
-    private Integer ID;
+    private Integer id;
+    @TableField(value = "order_no")
     private BigInteger orderNo;
-    @TableField("user_id")
+    @TableField(value = "user_id")
     private Integer userId;
-    @TableField("address_id")
+    @TableField(value = "address_id")
     private Integer addressId;
+    @TableField(value = "payment_price")
     private BigDecimal paymentPrice;
+    @TableField(value = "payment_type")
     private Integer paymentType;
     private Integer postage;
     private Integer status;
+    @TableField(value = "payment_time")
     private LocalDateTime paymentTime;
+    @TableField(value = "send_time")
     private LocalDateTime sendTime;
+    @TableField(value = "end_time")
     private LocalDateTime endTime;
+    @TableField(value = "close_time")
     private LocalDateTime closeTime;
-    @TableField("create_time")
+    @TableField(value = "create_time")
     private LocalDateTime createTime;
-    @TableField("update_time")
+    @TableField(value = "update_time")
     private LocalDateTime updateTime;
 }

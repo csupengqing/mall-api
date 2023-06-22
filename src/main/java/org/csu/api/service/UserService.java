@@ -32,7 +32,7 @@ public interface UserService {
     CommonResponse<String> resetPassword(Integer id, ResetPasswordDTO resetPasswordDTO);
 
     //登录状态修改用户信息
-    CommonResponse<String> updateUserInfo(Integer id, UpdateUserInfoDTO updateUserInfoDTO);
+    CommonResponse<Object> updateUserInfo(UpdateUserDTO updateUserDTO);
 
     //删除用户————管理员权限
     CommonResponse<String> deleteUser(Integer id);

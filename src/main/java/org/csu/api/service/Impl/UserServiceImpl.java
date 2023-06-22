@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.benmanes.caffeine.cache.Cache;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.csu.api.common.CONSTANT;
@@ -15,18 +14,13 @@ import org.csu.api.domain.User;
 import org.csu.api.dto.*;
 import org.csu.api.persistence.UserMapper;
 import org.csu.api.service.UserService;
-import org.csu.api.util.ListBeanUtils;
 import org.csu.api.vo.UserVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -220,20 +214,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CommonResponse<String> updateUserInfo(Integer id, UpdateUserInfoDTO updateUserInfoDTO) {
-        String md5Password = bCryptPasswordEncoder.encode(updateUserInfoDTO.getPassword());
-        User user = new User();
-        BeanUtils.copyProperties(updateUserInfoDTO, user);
-        user.setPassword(md5Password);
+    public CommonResponse<Object> updateUserInfo(UpdateUserDTO updateUserDTO) {
+        //用户是否存在
+        User user = userMapper.selectById(updateUserDTO.getId());
+        if(user == null)
+            return CommonResponse.createForError("用户不存在");
 
+        //用户名、邮箱、电话校验
+        CommonResponse<Object> checkResult = checkField(CONSTANT.USER_FIELD.USERNAME, updateUserDTO.getUsername());
+        if(!checkResult.isSuccess()){
+            return checkResult;
+        }
+        checkResult = checkField(CONSTANT.USER_FIELD.EMAIL, updateUserDTO.getEmail());
+        if(!checkResult.isSuccess()){
+            return checkResult;
+        }
+        checkResult = checkField(CONSTANT.USER_FIELD.PHONE, updateUserDTO.getPhone());
+        if(!checkResult.isSuccess()){
+            return checkResult;
+        }
+        //更新
+        String md5Password = bCryptPasswordEncoder.encode(updateUserDTO.getPassword());
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", id);
-        updateWrapper.set("username", user.getUsername())
-                .set("password", user.getPassword())
-                .set("email", user.getEmail())
-                .set("phone", user.getPhone())
-                .set("question", user.getQuestion())
-                .set("answer", user.getAnswer());
+        updateWrapper.eq("id", updateUserDTO.getId());
+        updateWrapper.set("username", updateUserDTO.getUsername())
+                .set("password", md5Password)
+                .set("email", updateUserDTO.getEmail())
+                .set("phone", updateUserDTO.getPhone())
+                .set("question", updateUserDTO.getQuestion())
+                .set("answer", updateUserDTO.getAnswer());
         int rows = userMapper.update(user, updateWrapper);
         if (rows > 0) {
             return CommonResponse.createForSuccess("SUCCESS");

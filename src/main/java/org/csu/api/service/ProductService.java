@@ -3,6 +3,7 @@ package org.csu.api.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.csu.api.common.CommonResponse;
 import org.csu.api.dto.ProductInfoDTO;
+import org.csu.api.dto.UpdateProductDTO;
 import org.csu.api.vo.ProductDetailVO;
 import org.csu.api.vo.ProductListVO;
 
@@ -21,5 +22,5 @@ public interface ProductService {
     CommonResponse<String> deleteProduct(Integer productId);
 
     //修改商品信息————管理员权限
-    CommonResponse<String> updateProductInfo(Integer productId, ProductInfoDTO productInfoDTO);
+    CommonResponse<String> updateProductInfo(UpdateProductDTO updateProductDTO);
 }

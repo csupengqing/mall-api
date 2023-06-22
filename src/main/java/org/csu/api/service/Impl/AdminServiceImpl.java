@@ -13,7 +13,7 @@ import org.csu.api.domain.User;
 import org.csu.api.dto.LoginUserDTO;
 import org.csu.api.dto.RegisterUserDTO;
 import org.csu.api.dto.ResetPasswordDTO;
-import org.csu.api.dto.UpdateUserInfoDTO;
+import org.csu.api.dto.UpdateUserDTO;
 import org.csu.api.persistence.UserMapper;
 import org.csu.api.service.AdminService;
 import org.csu.api.vo.UserVO;
@@ -136,18 +136,18 @@ public class AdminServiceImpl implements AdminService {
 
 
     @Override
-    public CommonResponse<String> updateAdminInfo(Integer id, UpdateUserInfoDTO updateUserInfoDTO) {
+    public CommonResponse<String> updateAdminInfo(UpdateUserDTO updateUserDTO) {
 
-        String md5Password = bCryptPasswordEncoder.encode(updateUserInfoDTO.getPassword());
+        String md5Password = bCryptPasswordEncoder.encode(updateUserDTO.getPassword());
         User user = new User();
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", id).eq("role",CONSTANT.ROLE.ADMIN);
-        updateWrapper.set("username", updateUserInfoDTO.getUsername())
+        updateWrapper.eq("id", updateUserDTO.getId()).eq("role",CONSTANT.ROLE.ADMIN);
+        updateWrapper.set("username", updateUserDTO.getUsername())
                 .set("password", md5Password)
-                .set("email", updateUserInfoDTO.getEmail())
-                .set("phone", updateUserInfoDTO.getPhone())
-                .set("question", updateUserInfoDTO.getQuestion())
-                .set("answer", updateUserInfoDTO.getAnswer());
+                .set("email", updateUserDTO.getEmail())
+                .set("phone", updateUserDTO.getPhone())
+                .set("question", updateUserDTO.getQuestion())
+                .set("answer", updateUserDTO.getAnswer());
         int rows = userMapper.update(user, updateWrapper);
         if (rows > 0) {
             return CommonResponse.createForSuccess("SUCCESS");

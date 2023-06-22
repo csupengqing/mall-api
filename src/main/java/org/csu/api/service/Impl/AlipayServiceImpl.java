@@ -1,4 +1,4 @@
-package org.csu.api.service.Impl;
+package org.csu.api.service.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
@@ -146,7 +146,7 @@ public class AlipayServiceImpl implements AlipayService {
                 updateWrapper.eq("order_no", new BigInteger(outTradeNo));
                 order.setOrderNo(new BigInteger(outTradeNo));
                 order.setStatus(CONSTANT.ORDER_STATUS.PAID);
-                order.setEndTime(LocalDateTime.now());
+                order.setPaymentTime(LocalDateTime.now());
                 int rows = orderMapper.update(order, updateWrapper);
                 if (rows == 1) {
                     log.info("订单{}支付已完成,时间:{}", outTradeNo, LocalDateTime.now());

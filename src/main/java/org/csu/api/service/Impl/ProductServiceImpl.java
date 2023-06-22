@@ -12,6 +12,7 @@ import org.csu.api.common.ResponseCode;
 import org.csu.api.domain.Category;
 import org.csu.api.domain.Product;
 import org.csu.api.dto.ProductInfoDTO;
+import org.csu.api.dto.UpdateProductDTO;
 import org.csu.api.persistence.CategoryMapper;
 import org.csu.api.persistence.ProductMapper;
 import org.csu.api.service.CategoryService;
@@ -101,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
         if(StringUtils.isNotBlank(orderBy)){
             if(StringUtils.equals(orderBy, CONSTANT.PRODUCT_ORDER_BY_PRICE_ASC)){
                 queryWrapper.orderByAsc("price");
-            }else if(StringUtils.equals(orderBy, CONSTANT.PRODUCT_ORDER_BY_PRICE_ASC)){
+            }else if(StringUtils.equals(orderBy, CONSTANT.PRODUCT_ORDER_BY_PRICE_DESC)){
                 queryWrapper.orderByDesc("price");
             }
         }
@@ -157,7 +158,10 @@ public class ProductServiceImpl implements ProductService {
             return CommonResponse.createForError("商品ID不存在");
         }
         else{
-            int result = productMapper.deleteById(productId);
+            UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("id",productId)
+                    .set("status",CONSTANT.ProductStatus.DELETE.getCode());
+            int result = productMapper.update(product,updateWrapper);
             if(result == 0){
                 return CommonResponse.createForError("删除商品失败");
             }
@@ -168,28 +172,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public CommonResponse<String> updateProductInfo(Integer productId, ProductInfoDTO productInfoDTO) {
-        Product product = productMapper.selectById(productId);
+    public CommonResponse<String> updateProductInfo(UpdateProductDTO updateProductDTO) {
+        Product product = productMapper.selectById(updateProductDTO.getId());
         if(product == null){
             return CommonResponse.createForError("该商品不存在");
         }
         else{
-            if(categoryMapper.selectById(productInfoDTO.getCategoryId()) == null){
-                return CommonResponse.createForError("修改至的类别不存在");
+            if(categoryMapper.selectById(updateProductDTO.getCategoryId()) == null){
+                return CommonResponse.createForError("要修改至的类别不存在");
             }
             else{
                 Product product1 = new Product();
                 UpdateWrapper<Product> updateWrapper =new UpdateWrapper<>();
-                updateWrapper.eq("id",productId);
-                updateWrapper.set("category_id",productInfoDTO.getCategoryId())
-                        .set("name",productInfoDTO.getName())
-                        .set("subtitle",productInfoDTO.getSubtitle())
-                        .set("main_image",productInfoDTO.getMainImage())
-                        .set("sub_images",productInfoDTO.getSubImages())
-                        .set("detail",productInfoDTO.getDetail())
-                        .set("price",productInfoDTO.getPrice())
-                        .set("stock",productInfoDTO.getStock())
-                        .set("status",productInfoDTO.getStatus())
+                updateWrapper.eq("id",updateProductDTO.getId());
+                updateWrapper.set("category_id",updateProductDTO.getCategoryId())
+                        .set("name",updateProductDTO.getName())
+                        .set("subtitle",updateProductDTO.getSubtitle())
+                        .set("main_image",updateProductDTO.getMainImage())
+                        .set("sub_images",updateProductDTO.getSubImages())
+                        .set("detail",updateProductDTO.getDetail())
+                        .set("price",updateProductDTO.getPrice())
+                        .set("stock",updateProductDTO.getStock())
+                        .set("status",updateProductDTO.getStatus())
                         .set("update_time",LocalDateTime.now());
                 int rows = productMapper.update(product1, updateWrapper);
                 if (rows > 0) {

@@ -20,11 +20,13 @@ public class Category {
     private Integer parentId;
     private String name;
     private Boolean status;
+
+    @TableField(value = "sort_order")
     private Integer sortOrder;
 
-    @TableField("create_time")
+    @TableField(value = "create_time")
     private LocalDateTime createTime;
-    @TableField("update_time")
+    @TableField(value = "update_time")
     private LocalDateTime updateTime;
 
     //利用HashSet保存分类信息时，需重写equals和hashcode方法。
