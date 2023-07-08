@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("productService")
@@ -152,22 +153,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public CommonResponse<String> deleteProduct(Integer productId) {
-        Product product = productMapper.selectById(productId);
-        if(product == null){
-            return CommonResponse.createForError("商品ID不存在");
-        }
-        else{
-            UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("id",productId)
-                    .set("status",CONSTANT.ProductStatus.DELETE.getCode());
-            int result = productMapper.update(product,updateWrapper);
-            if(result == 0){
-                return CommonResponse.createForError("删除商品失败");
+    public CommonResponse<String> deleteProduct(String productIds) {
+        String[] idList = productIds.split(",");
+        int result = 0;
+        for(String id:idList){
+            Product product = productMapper.selectById(id);
+            if(product == null){
+                return CommonResponse.createForError("商品ID不存在");
             }
             else{
-                return CommonResponse.createForSuccessMessage("删除商品成功");
-            }
+                UpdateWrapper<Product> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("id",Integer.parseInt(id))
+                        .set("status",CONSTANT.ProductStatus.DELETE.getCode());
+                result += productMapper.update(product,updateWrapper);
+        }
+        }
+        if(result != idList.length){
+            return CommonResponse.createForError("删除商品失败");
+        }
+        else{
+            return CommonResponse.createForSuccessMessage("删除商品成功");
         }
     }
 
@@ -202,5 +207,21 @@ public class ProductServiceImpl implements ProductService {
                 return CommonResponse.createForError("修改商品信息失败");
             }
         }
+    }
+
+    @Override
+    public CommonResponse<List<ProductDetailVO>> list(String keyword) {
+        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+        if(StringUtils.isNotBlank(keyword)){
+            queryWrapper.like("name", "%"+keyword+"%");
+        }
+        List<Product> productList = productMapper.selectList(queryWrapper);
+        List<ProductDetailVO> productDetailVOList = new ArrayList<>();
+        for(Product product:productList){
+              ProductDetailVO productDetailVO = new ProductDetailVO();
+              BeanUtils.copyProperties(product,productDetailVO);
+              productDetailVOList.add(productDetailVO);
+        }
+        return CommonResponse.createForSuccess(productDetailVOList);
     }
 }

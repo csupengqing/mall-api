@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
-
+//
+//@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true", allowedHeaders = "*")
 @RestController
 @RequestMapping("/admin/order")
 @Validated
@@ -36,6 +38,16 @@ public class AdminOrderController {
         }
         else
             return orderService.list(orderStatus,orderBy,pageNum,pageSize);
+    }
+
+    @GetMapping("/list_order")
+    public CommonResponse<List<OrderVO>> list(@RequestParam(required = false) String orderNo,HttpSession session){
+        UserVO userVO=(UserVO)session.getAttribute(CONSTANT.LOGIN_ADMIN);
+        if(userVO == null){
+            return CommonResponse.createForError(ResponseCode.ERROR.getCode(),"管理员未登录");
+        }
+        else
+            return orderService.list(orderNo);
     }
     //发货
     @PostMapping("/send")

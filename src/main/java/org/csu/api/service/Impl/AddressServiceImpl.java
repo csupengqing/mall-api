@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -101,5 +102,30 @@ public class AddressServiceImpl implements AddressService {
         List<Address> addressList = addressMapper.selectList(queryWrapper);
         List<AddressVO> addressVOList = ListBeanUtils.copyListProperties(addressList, AddressVO::new);
         return CommonResponse.createForSuccess(addressVOList);
+    }
+
+    @Override
+    public CommonResponse<List<AddressVO>> list(Integer userId) {
+        List<AddressVO> addressVOList = new ArrayList<>();
+        QueryWrapper<Address> queryWrapper = new QueryWrapper<>();
+        if(userId != null){
+            queryWrapper.eq("user_id",userId);
+        }
+        List<Address> addressList = addressMapper.selectList(queryWrapper);
+        for(Address address:addressList){
+            AddressVO addressVO = new AddressVO();
+            BeanUtils.copyProperties(address,addressVO);
+            addressVOList.add(addressVO);
+        }
+        return CommonResponse.createForSuccess(addressVOList);
+    }
+
+    @Override
+    public CommonResponse<String> delete(Integer addressId) {
+        int result = addressMapper.deleteById(addressId);
+        if (result != 0)
+            return CommonResponse.createForSuccessMessage("删除成功");
+        else
+            return CommonResponse.createForError("删除失败");
     }
 }

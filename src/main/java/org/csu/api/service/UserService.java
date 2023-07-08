@@ -35,11 +35,11 @@ public interface UserService {
     CommonResponse<Object> updateUserInfo(UpdateUserDTO updateUserDTO);
 
     //删除用户————管理员权限
-    CommonResponse<String> deleteUser(Integer id);
+    CommonResponse<String> deleteUser(String ids);
 
     //查看所有用户信息————管理员权限
     CommonResponse<List<User>> listUser();
 
     //查看用户信息————管理员权限
-    CommonResponse<User> getUserInfo(Integer id);
+    CommonResponse<User> getUserInfo(String username);
 }

@@ -23,10 +23,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -364,5 +366,23 @@ public class OrderServiceImpl implements OrderService {
             return CommonResponse.createForError("关闭订单失败");
         else
             return CommonResponse.createForSuccessMessage("SUCCESS");
+    }
+
+    @Override
+    public CommonResponse<List<OrderVO>> list(String orderNo) {
+        List<OrderVO> orderVOList = new ArrayList<>();
+        QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
+        if(StringUtils.isNotBlank(orderNo)){
+            BigDecimal no = new BigDecimal(orderNo);
+            queryWrapper.eq("order_no", no);
+        }
+        List<Order> orderList = orderMapper.selectList(queryWrapper);
+        if(CollectionUtils.isNotEmpty(orderList)){
+            for(Order order : orderList){
+                orderVOList.add(this.orderToOrderVO(order).getData());
+            }
+            System.out.println(orderVOList);
+        }
+        return CommonResponse.createForSuccess(orderVOList);
     }
 }

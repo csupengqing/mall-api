@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service("userService")
@@ -221,17 +222,23 @@ public class UserServiceImpl implements UserService {
             return CommonResponse.createForError("用户不存在");
 
         //用户名、邮箱、电话校验
-        CommonResponse<Object> checkResult = checkField(CONSTANT.USER_FIELD.USERNAME, updateUserDTO.getUsername());
-        if(!checkResult.isSuccess()){
-            return checkResult;
+        if(!Objects.equals(updateUserDTO.getUsername(), user.getUsername())){
+            CommonResponse<Object> checkResult = checkField(CONSTANT.USER_FIELD.USERNAME, updateUserDTO.getUsername());
+            if(!checkResult.isSuccess()){
+                return checkResult;
+            }
         }
-        checkResult = checkField(CONSTANT.USER_FIELD.EMAIL, updateUserDTO.getEmail());
-        if(!checkResult.isSuccess()){
-            return checkResult;
+        if(!Objects.equals(updateUserDTO.getEmail(), user.getEmail())){
+            CommonResponse<Object> checkResult = checkField(CONSTANT.USER_FIELD.EMAIL, updateUserDTO.getEmail());
+            if(!checkResult.isSuccess()){
+                return checkResult;
+            }
         }
-        checkResult = checkField(CONSTANT.USER_FIELD.PHONE, updateUserDTO.getPhone());
-        if(!checkResult.isSuccess()){
-            return checkResult;
+        if(!Objects.equals(updateUserDTO.getPhone(), user.getPhone())){
+            CommonResponse<Object> checkResult = checkField(CONSTANT.USER_FIELD.PHONE, updateUserDTO.getPhone());
+            if(!checkResult.isSuccess()){
+                return checkResult;
+            }
         }
         //更新
         String md5Password = bCryptPasswordEncoder.encode(updateUserDTO.getPassword());
@@ -251,13 +258,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CommonResponse<String> deleteUser(Integer id) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("id",id).eq("role",CONSTANT.ROLE.CUSTOMER);
-        if(userMapper.selectOne(queryWrapper) == null)
-            return CommonResponse.createForError("该用户不存在或为管理员，删除用户失败");
-        int result = userMapper.deleteById(id);
-        if(result > 0)
+    public CommonResponse<String> deleteUser(String ids) {
+        String[] idList = ids.split(",");
+        int result = 0;
+        for(String id:idList){
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("id",Integer.parseInt(id)).eq("role",CONSTANT.ROLE.CUSTOMER);
+            if(userMapper.selectOne(queryWrapper) == null)
+                return CommonResponse.createForError("该用户不存在或为管理员，删除用户失败");
+            result += userMapper.deleteById(id);
+        }
+        if(result == idList.length)
             return CommonResponse.createForSuccessMessage("删除用户成功");
         return CommonResponse.createForError("删除用户失败");
     }
@@ -271,8 +282,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CommonResponse<User> getUserInfo(Integer id) {
-        User user = userMapper.selectById(id);
+    public CommonResponse<User> getUserInfo(String username) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username",username);
+        User user = userMapper.selectOne(queryWrapper);
         if(user == null)
             return CommonResponse.createForError(ResponseCode.ARGUMENT_ILLEGAL.getCode(), ResponseCode.ARGUMENT_ILLEGAL.getDescription());
         else

@@ -7,6 +7,8 @@ import org.csu.api.dto.UpdateProductDTO;
 import org.csu.api.vo.ProductDetailVO;
 import org.csu.api.vo.ProductListVO;
 
+import java.util.List;
+
 public interface ProductService {
 
     //根据商品ID查询商品的详情
@@ -19,8 +21,10 @@ public interface ProductService {
     CommonResponse<String> addProduct(ProductInfoDTO productInfoDTO);
 
     //删除商品————管理员权限
-    CommonResponse<String> deleteProduct(Integer productId);
+    CommonResponse<String> deleteProduct(String productIds);
 
     //修改商品信息————管理员权限
     CommonResponse<String> updateProductInfo(UpdateProductDTO updateProductDTO);
+    //查看所有商品————管理员权限
+    CommonResponse<List<ProductDetailVO>> list(String keyword);
 }

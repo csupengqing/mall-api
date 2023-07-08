@@ -16,6 +16,7 @@ public interface OrderService {
     CommonResponse<String> cancel(Integer orderId);
     //管理员查看所有订单
     CommonResponse<Page<OrderVO>> list(Integer orderStatus, String orderBy, int pageNum, int pageSize);
+    CommonResponse<List<OrderVO>> list(String orderNo);
     CommonResponse<String> send(Integer orderId);
     CommonResponse<String> success(Integer orderId);
     CommonResponse<String> close(Integer orderId);
