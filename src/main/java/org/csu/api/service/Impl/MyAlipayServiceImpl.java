@@ -1,4 +1,4 @@
-package org.csu.api.service.Impl;
+package org.csu.api.service.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
